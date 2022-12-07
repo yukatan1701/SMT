@@ -736,81 +736,87 @@ void updateXYRight(double *U2, double *U1, double *U0,
     /*----------Fill border points of XY, exclude corner points-----------*/
     if (DI.Coord.Z < DI.CubeNum.Z-1) {
         // Top line
-        if (DI.Coord.X == 0) {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++)
-               U2(0,J,K) = 0;
-        } else {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++) {
-                double Add = OtherXY(0,J);
-                U2(0,J,K) += Tau*Tau*Add/(H.z*H.z);
+        #pragma omp parallel firstprivate(K)
+        {
+            if (DI.Coord.X == 0) {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++)
+                U2(0,J,K) = 0;
+            } else {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++) {
+                    double Add = OtherXY(0,J);
+                    U2(0,J,K) += Tau*Tau*Add/(H.z*H.z);
+                }
             }
-        }
-        // Bottom line
-        if (DI.Coord.X < DI.CubeNum.X-1) {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++) {
-                double Add = OtherXY(X-1, J);
-                U2(X-1,J,K) += Tau*Tau*Add/(H.z*H.z);
+            // Bottom line
+            if (DI.Coord.X < DI.CubeNum.X-1) {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++) {
+                    double Add = OtherXY(X-1, J);
+                    U2(X-1,J,K) += Tau*Tau*Add/(H.z*H.z);
+                }
+            } else {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++) {
+                    U2(X-1,J,K) = 0;
+                }
             }
-        } else {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++) {
-                U2(X-1,J,K) = 0;
+            // Left line
+            if (DI.Coord.Y > 0) {
+                #pragma omp for nowait
+                for (int I = 1; I < X-1; I++) {
+                    double Add = OtherXY(I, 0);
+                    U2(I,0,K) += Tau*Tau*Add/(H.z*H.z);
+                }
+            } else {
+                #pragma omp for nowait
+                for (int I = 1; I < X-1; I++)
+                    U2(I,0,K) = 0;
             }
-        }
-        // Left line
-        if (DI.Coord.Y > 0) {
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++) {
-                double Add = OtherXY(I, 0);
-                U2(I,0,K) += Tau*Tau*Add/(H.z*H.z);
+            // Right line
+            if (DI.Coord.Y < DI.CubeNum.Y-1) {
+                #pragma omp for nowait
+                for (int I = 1; I < X-1; I++) {
+                    double Add = OtherXY(I, Y-1);
+                    U2(I,Y-1,K) += Tau*Tau*Add/(H.z*H.z);
+                }
+            } else {
+                #pragma omp for nowait
+                for (int I = 1; I < X-1; I++)
+                    U2(I,Y-1,K) = 0;
             }
-        } else {
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++)
-                U2(I,0,K) = 0;
-        }
-        // Right line
-        if (DI.Coord.Y < DI.CubeNum.Y-1) {
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++) {
-                double Add = OtherXY(I, Y-1);
-                U2(I,Y-1,K) += Tau*Tau*Add/(H.z*H.z);
-            }
-        } else {
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++)
-                U2(I,Y-1,K) = 0;
         }
     } else {
         // Top line
-        if (DI.Coord.X > 0) {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++) {
-                U2(0,J,K) = 0;
+        #pragma omp parallel firstprivate(K)
+        {
+            if (DI.Coord.X > 0) {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++) {
+                    U2(0,J,K) = 0;
+                }
             }
-        }
-        // Bottom line
-        if (DI.Coord.X < DI.CubeNum.X-1) {
-            #pragma omp parallel for firstprivate(K)
-            for (int J = 1; J < Y-1; J++) {
-                U2(X-1,J,K) = 0;
+            // Bottom line
+            if (DI.Coord.X < DI.CubeNum.X-1) {
+                #pragma omp for nowait
+                for (int J = 1; J < Y-1; J++) {
+                    U2(X-1,J,K) = 0;
+                }
             }
-        }
-        // Left line
-        if (DI.Coord.Y > 0) {
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++) {
-                U2(I,0,K) = 0;
+            // Left line
+            if (DI.Coord.Y > 0) {
+                #pragma omp for nowait
+                for (int I = 1; I < X-1; I++) {
+                    U2(I,0,K) = 0;
+                }
             }
-        }
-        if (DI.Coord.Y < DI.CubeNum.Y-1) {
-            // Right line
-            #pragma omp parallel for firstprivate(K)
-            for (int I = 1; I < X-1; I++) {
-                U2(I,Y-1,K) = 0;
+            if (DI.Coord.Y < DI.CubeNum.Y-1) {
+                // Right line
+                #pragma omp for
+                for (int I = 1; I < X-1; I++) {
+                    U2(I,Y-1,K) = 0;
+                }
             }
         }
     }
@@ -873,41 +879,43 @@ void updateXYLeft(double *U2, double *U1, double *U0,
     } else {
         /*--------------------Fill inner points of XY-------------------------*/
         int K = 0;
-        #pragma omp parallel for firstprivate(K)
-        for (int I = 1; I < X-1; I++) {
-            for (int J = 1; J < Y-1; J++) {
-                double S1 = (U1(I-1,J,K)-2*U1(I,J,K)+U1(I+1,J,K)) / (H.x*H.x);
-                double S2 = (U1(I,J-1,K)-2*U1(I,J,K)+U1(I,J+1,K)) / (H.y*H.y);
-                double S3 = (OtherXY(I,J)-2*U1(I,J,K)+U1(I,J,K+1)) / (H.z*H.z);
-                double Delta = S1 + S2 + S3;
-                U2(I,J,K) = 2*U1(I,J,K) - U0(I,J,K) + Tau*Tau*Delta;
+        #pragma omp parallel firstprivate(K)
+        {
+            #pragma omp for
+            for (int I = 1; I < X-1; I++) {
+                for (int J = 1; J < Y-1; J++) {
+                    double S1 = (U1(I-1,J,K)-2*U1(I,J,K)+U1(I+1,J,K)) / (H.x*H.x);
+                    double S2 = (U1(I,J-1,K)-2*U1(I,J,K)+U1(I,J+1,K)) / (H.y*H.y);
+                    double S3 = (OtherXY(I,J)-2*U1(I,J,K)+U1(I,J,K+1)) / (H.z*H.z);
+                    double Delta = S1 + S2 + S3;
+                    U2(I,J,K) = 2*U1(I,J,K) - U0(I,J,K) + Tau*Tau*Delta;
+                }
             }
-        }
-
-        /*----------Fill border points of XY, exclude corner points-----------*/
-        // Top line
-        #pragma omp parallel for firstprivate(K)
-        for (int J = 1; J < Y-1; J++) {
-            double Add = OtherXY(0, J);
-            U2(0,J,K) += Tau*Tau*Add/(H.z*H.z);
-        }
-        // Bottom line
-        #pragma omp parallel for firstprivate(K)
-        for (int J = 1; J < Y-1; J++) {
-            double Add = OtherXY(X-1, J);
-            U2(X-1,J,K) += Tau*Tau*Add/(H.z*H.z);
-        }
-        // Left line
-        #pragma omp parallel for firstprivate(K)
-        for (int I = 1; I < X-1; I++) {
-            double Add = OtherXY(I, 0);
-            U2(I,0,K) += Tau*Tau*Add/(H.z*H.z);
-        }
-        // Right line
-        #pragma omp parallel for firstprivate(K)
-        for (int I = 1; I < X-1; I++) {
-            double Add = OtherXY(I,Y-1);
-            U2(I,Y-1,K) += Tau*Tau*Add/(H.z*H.z);
+            /*----------Fill border points of XY, exclude corner points-----------*/
+            // Top line
+            #pragma omp for nowait
+            for (int J = 1; J < Y-1; J++) {
+                double Add = OtherXY(0, J);
+                U2(0,J,K) += Tau*Tau*Add/(H.z*H.z);
+            }
+            // Bottom line
+            #pragma omp for nowait
+            for (int J = 1; J < Y-1; J++) {
+                double Add = OtherXY(X-1, J);
+                U2(X-1,J,K) += Tau*Tau*Add/(H.z*H.z);
+            }
+            // Left line
+            #pragma omp for nowait
+            for (int I = 1; I < X-1; I++) {
+                double Add = OtherXY(I, 0);
+                U2(I,0,K) += Tau*Tau*Add/(H.z*H.z);
+            }
+            // Right line
+            #pragma omp for nowait
+            for (int I = 1; I < X-1; I++) {
+                double Add = OtherXY(I,Y-1);
+                U2(I,Y-1,K) += Tau*Tau*Add/(H.z*H.z);
+            }
         }
 
         /*---------------------Fill corner points of XY-----------------------*/
