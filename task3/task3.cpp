@@ -281,15 +281,16 @@ void updateYZRight(double *U2, double *U1, double *U0,
         int I = X-1;
         #pragma omp parallel firstprivate(I)
         {
-        for (int J = 1; J < Y-1; J++) {
-            for (int K = 1; K < Z-1; K++) {
-                double S1 = (U1(I-1,J,K)-2*U1(I,J,K)+OtherYZ(J, K)) / (H.x*H.x);
-                double S2 = (U1(I,J-1,K)-2*U1(I,J,K)+U1(I,J+1,K)) / (H.y*H.y);
-                double S3 = (U1(I,J,K-1)-2*U1(I,J,K)+U1(I,J,K+1)) / (H.z*H.z);
-                double Delta = S1 + S2 + S3;
-                U2(I,J,K) = 2*U1(I,J,K) - U0(I,J,K) + Tau*Tau*Delta;
+            #pragma omp for nowait
+            for (int J = 1; J < Y-1; J++) {
+                for (int K = 1; K < Z-1; K++) {
+                    double S1 = (U1(I-1,J,K)-2*U1(I,J,K)+OtherYZ(J, K)) / (H.x*H.x);
+                    double S2 = (U1(I,J-1,K)-2*U1(I,J,K)+U1(I,J+1,K)) / (H.y*H.y);
+                    double S3 = (U1(I,J,K-1)-2*U1(I,J,K)+U1(I,J,K+1)) / (H.z*H.z);
+                    double Delta = S1 + S2 + S3;
+                    U2(I,J,K) = 2*U1(I,J,K) - U0(I,J,K) + Tau*Tau*Delta;
+                }
             }
-        }
         /*----------Fill border points of YZ, exclude corner points-----------*/
         // Top line
 
