@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define __USE_MISC
 #include <math.h>
+#include <sys/time.h>
 
 #define U0(I, J, K) U0[(K)*N*N + (I)*N + (J)]
 #define U1(I, J, K) U1[(K)*N*N + (I)*N + (J)]
 #define U2(I, J, K) U2[(K)*N*N + (I)*N + (J)]
+
+#define M_PI 3.14159265358979323846	
 
 struct LValues {
     double x;
@@ -20,6 +22,14 @@ struct HValues {
     double y;
     double z;
 };
+
+double rtclock() {
+    struct timeval Tp;
+    int stat = gettimeofday (&Tp, NULL);
+    if (stat != 0) 
+        fprintf(stderr, "Error return from gettimeofday: %d\n", stat);
+    return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
+}
 
 typedef struct HValues HValues;
 
@@ -207,11 +217,16 @@ int main(int argc, char **argv) {
     printf("%.5lf <= K_opt\n", T / stabCond);
     #endif
 
+    double Time1 = rtclock();
     initZeroLayer(ZeroLayer, N, H, L);
     initFirstLayer(FirstLayer, ZeroLayer, N, Tau, H, L);
+    double Delta = getDelta(ZeroLayer, N, Tau*0, L, H);
+    printf("Max delta [%d]: %.15lf\n", 0, Delta);
+    Delta = getDelta(FirstLayer, N, Tau*1, L, H);
+    printf("Max delta [%d]: %.15lf\n", 1, Delta);
     for (int n = 2; n <= 20; n++) {
         updateTop(TopLayer, FirstLayer, ZeroLayer, N, Tau, H);
-        double Delta = getDelta(TopLayer, N, Tau*n, L, H);
+        Delta = getDelta(TopLayer, N, Tau*n, L, H);
         printf("Max delta [%d]: %.15lf\n", n, Delta);
 
         double *Top = TopLayer;
@@ -219,6 +234,8 @@ int main(int argc, char **argv) {
         ZeroLayer = FirstLayer;
         FirstLayer = Top;
     }
+    double Time2 = rtclock();
+    printf("Total time: %0.6lf\n", Time2 - Time1);
     free(TopLayer);
     free(FirstLayer);
     free(ZeroLayer);
