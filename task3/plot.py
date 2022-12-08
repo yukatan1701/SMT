@@ -32,9 +32,10 @@ for i in range(N):
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-ax.scatter(x, y, z, c = points, cmap = 'coolwarm')
+sc = ax.scatter(x, y, z, c = points, cmap = 'coolwarm')
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
-#plt.colorbar(ax=ax, ticks=[range(0, 100, 10)], orientation='vertical')
+print(min(points), max(points))
+plt.colorbar(sc, orientation='vertical')
 plt.show()

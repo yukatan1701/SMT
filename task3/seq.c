@@ -188,6 +188,23 @@ void printMatrix(double *A, int N, int I) {\
 
 #endif
 
+#ifdef PRINT
+void generateDebugCube(double *U2, int N, LValues L, HValues H, int tn) {
+    for (int I = 0; I <= N; I++) {
+        double Xi = I * H.x;
+        for (int J = 0; J <= N; J++) {
+            double Yj = J * H.y;
+            for (int K = 0; K <= N; K++) {
+                double Zk = K * H.z;
+                fprintf(stderr, "%.3lf ", u(Xi,Yj,Zk,tn,L));
+                //fprintf(stderr, "%.3lf ", U2(I,J,K));
+            }
+        }
+    }
+    fprintf(stderr, "\n");
+}
+#endif
+
 int main(int argc, char **argv) {
     if (argc < 6) {
         fprintf(stderr, "Not enough arguments. Usage: ./task3 <Lx> <Ly> <Lz> <N> <T>");
@@ -224,6 +241,8 @@ int main(int argc, char **argv) {
     printf("Max delta [%d]: %.15lf\n", 0, Delta);
     Delta = getDelta(FirstLayer, N, Tau*1, L, H);
     printf("Max delta [%d]: %.15lf\n", 1, Delta);
+    //generateDebugCube(ZeroLayer, N);
+    //generateDebugCube(FirstLayer, N);
     for (int n = 2; n <= 20; n++) {
         updateTop(TopLayer, FirstLayer, ZeroLayer, N, Tau, H);
         Delta = getDelta(TopLayer, N, Tau*n, L, H);
@@ -234,6 +253,9 @@ int main(int argc, char **argv) {
         ZeroLayer = FirstLayer;
         FirstLayer = Top;
     }
+    #ifdef PRINT
+    generateDebugCube(TopLayer, N, L, H, Tau*20);
+    #endif
     double Time2 = rtclock();
     printf("Total time: %0.6lf\n", Time2 - Time1);
     free(TopLayer);

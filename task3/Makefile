@@ -15,5 +15,8 @@ seq: seq.c
 seq_debug: seq.c
 	gcc -std=c99 -Wall -Wextra -O3 -g -DDEBUG seq.c -o seq_debug -lm
 
+seq_print: seq.c
+	gcc -std=c99 -Wall -Wextra -O3 -DPRINT seq.c -o seq_print -lm
+
 clean:
 	rm -rf ${GENERATES}
