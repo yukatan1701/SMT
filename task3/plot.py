@@ -4,12 +4,13 @@ import numpy as np
 
 cmd = sys.argv[1]
 size = int(sys.argv[2])
-approx = True
-dir = "plot_ap"
 if cmd == "an":
-    approx = False
     dir = "plot_an"
-elif cmd != "ap":
+elif cmd == "ap":
+    dir = "plot_ap"
+elif cmd == "diff":
+    dir = "plot_diff"
+else:
     print("Invalid mode:", cmd)
     exit(1)
 
@@ -32,7 +33,11 @@ for i in range(N):
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-sc = ax.scatter(x, y, z, c = points, cmap = 'coolwarm')
+if cmd == "diff":
+    cmap = 'PuBu'
+else:
+    cmap = 'coolwarm'
+sc = ax.scatter(x, y, z, c = points, cmap = cmap)
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
