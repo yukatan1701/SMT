@@ -1,0 +1,24 @@
+#CFLAGS = -std=c++98 -Wall -Wextra
+#CFLAGS += -I/usr/lib/gcc/x86_64-linux-gnu/9/include/
+SOURCES = task3.cpp cube.cpp
+GENERATES=task3
+
+all: common.h ${SOURCES}
+	mpixlC ${CFLAGS} ${SOURCES} -O2 -qarch=pwr8 -o task3_mpi
+
+omp: common.h ${SOURCES}
+	#mpicxx ${CFLAGS} ${SOURCES} -qsmp=omp -O2 -o task3_omp
+	mpixlC ${CFLAGS} ${SOURCES} -qsmp=omp -O2 -qarch=pwr8 -o task3_omp
+
+debug: common.h ${SOURCES}
+	mpicxx ${CFLAGS} ${SOURCES} -g -DDEBUG -o task3
+
+seq: seq.c
+	#gcc -std=c99 -Wall -Wextra -O3 seq.c -o seq -lm
+	xlc -std=c99 -Wall -Wextra -O2 -qarch=pwr8 seq.c -o seq -lm
+
+seq_debug: seq.c
+	#gcc -std=c99 -Wall -Wextra -O3 -g -DDEBUG seq.c -o seq_debug -lm
+
+clean:
+	rm -rf ${GENERATES}
